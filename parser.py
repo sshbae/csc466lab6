@@ -71,6 +71,7 @@ def toSparseMatrix(jokeCsv):
     targets_array = []
     users = {}
 
+#TODO need to ignore the first number of each row, bc that's just the number of ratings
     with open(jokeCsv, "r") as f:
         for row_idx, string in enumerate(f.readlines()):
             vec = string.strip("\n").split(",")
@@ -99,11 +100,11 @@ def toSparseMatrix(jokeCsv):
     print(" Starting to transform to a sparse matrix" + str(datetime.now()))
     matrix = coo_matrix((X_data, (X_row, X_col)), dtype=int)
     print("Finished transform to a sparse matrix " + str(datetime.now()))
-    return matrix.tocsr()
+    return matrix.tocsr(), users
 
 def main():
     jokeCsv = './jester-data-1.csv'
-    completeRatingsMatrix = toSparseMatrix(jokeCsv)
+    completeRatingsMatrix, users = toSparseMatrix(jokeCsv)
     print(completeRatingsMatrix)
     outfile = sys.argv[1]
    # documents = []
