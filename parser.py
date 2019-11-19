@@ -1,7 +1,7 @@
-#CSC466 F19 Lab 5
+#CSC466 F19 Lab 6
 #Sarah Bae, shbae@calpoly.edu
 #Roxanne Miller, rmille60@calpoly.edu
-#textVectorizer.py: python3 textVectorizer.py <root directory of corpus> <output csv file name>
+#parser.py: python3 parser.py <output csv file name>
 
 import os
 import re
@@ -12,12 +12,14 @@ from datetime import datetime
 from scipy.sparse import coo_matrix
 
 def Item():
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.avgRating = 0
         self.invUserFreq = 0
 
 def User():
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.avgRating = 0
         self.ratedIems = []
     
@@ -61,21 +63,13 @@ def convertToTfIdf(builder, documents, docFrequency):
         for i in range(len(doc.frequencies)):
             doc.frequencies[i] = tf_idf(i, doc, docFrequency, len(documents))
 
-def parseStopWords(stopWordFile):
-    stopWords = set()
-
-    file = open(stopWordFile, "r")
-    for line in file:
-        stopWords.add(line.strip())
-
-    return stopWords
-
 #using sparse matrix constructor from
 #https://stackoverflow.com/questions/32368667/python-the-best-way-to-read-a-sparse-file-into-a-sparse-matrix?rq=1
 def toSparseMatrix(jokeCsv):
     X_data = []
     X_row, X_col = [], []
     targets_array = []
+    users = {}
 
     with open(jokeCsv, "r") as f:
         for row_idx, string in enumerate(f.readlines()):
@@ -97,6 +91,10 @@ def toSparseMatrix(jokeCsv):
             #print("x row")
             #print(X_row)
             X_data.extend(row[col_inds])
+
+            users[row_idx] = User(row_idx)
+            users[row_idx].ratedItems = col_inds
+            users[row_idx].avgRating = row[col_inds].mean()
 
     print(" Starting to transform to a sparse matrix" + str(datetime.now()))
     matrix = coo_matrix((X_data, (X_row, X_col)), dtype=int)
