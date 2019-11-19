@@ -16,6 +16,9 @@ class Item:
         self.id = id
         self.avgRating = 0
         self.invUserFreq = 0
+        self.ratings = []
+    def __repr__(self):
+        return 'id:%d' % self.id
 
 class User:
     def __init__(self, id, ratedItems=[], avgRating=0):
@@ -65,40 +68,42 @@ def convertToTfIdf(builder, documents, docFrequency):
         for i in range(len(doc.frequencies)):
             doc.frequencies[i] = tf_idf(i, doc, docFrequency, len(documents))
 
+def invUsrFreqAvgRating(users, items):
+    for item in items:
+        item.ratings = np.array(item.ratings).astype(np.float)
+        item.invUserFreq = np.log2(item.ratings.size/len(users))
+        item.avgRating = np.mean(item.ratings)
+    return items
+
 #using sparse matrix constructor from
 #https://stackoverflow.com/questions/32368667/python-the-best-way-to-read-a-sparse-file-into-a-sparse-matrix?rq=1
 def toSparseMatrix(jokeCsv):
     X_data = []
     X_row, X_col = [], []
-    targets_array = []
     users = []
-    items = [None] * 100
+    items = [Item(i) for i in range(100)]
 
     with open(jokeCsv, "r") as f:
         for row_idx, string in enumerate(f.readlines()):
-            vec = string.strip("\n").split(",")
-            num = int(vec[0])
-            vec = vec[1:] #ignore the first number, this is the number of ratings from current user
-            #print(vec)
-            targets_array.append(float(vec[-1]))
-            #print("targs array")
-            #print(targets_array)
-            row = np.array(list(map(float, vec)))#vec[:-1])))
-            #print("row")
-            #print(row)
+            usrRatings = string.strip("\n").split(",")
+            num = int(usrRatings[0])
+            usrRatings = usrRatings[1:] #ignore the first number, this is the number of ratings from current user
+            row = np.array(list(map(float, usrRatings)))
+            #print(f,"row: {row}")
             col_inds, = np.where(row!=99)
-            #print("col inds")
-            #print(col_inds)
+            #print(f"col inds: {col_inds}")
             X_col.extend(col_inds)
-            #print("x col")
-            #print(X_col)
+            #print(f"x col: {X_col}")
             X_row.extend([row_idx]*len(col_inds))
-            #print("x row")
-            #print(X_row)
+            #print(f"x row: {X_row}")
             X_data.extend(row[col_inds])
 
             user = User(id=row_idx, ratedItems=col_inds, avgRating=row[col_inds].mean())
             users.append(user)
+
+            for item in col_inds:
+                items[item].ratings.append(usrRatings[item])
+    items = invUsrFreqAvgRating(users, items)
 
     print(" Starting to transform to a sparse matrix" + str(datetime.now()))
     matrix = coo_matrix((X_data, (X_row, X_col)), dtype=int)
