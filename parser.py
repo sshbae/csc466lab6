@@ -1,14 +1,9 @@
 #CSC466 F19 Lab 6
 #Sarah Bae, shbae@calpoly.edu
 #Roxanne Miller, rmille60@calpoly.edu
-#parser.py: python3 parser.py <output csv file name>
+#parser.py: python3 parser.py
 
-import os
-import re
-import sys
-import math
 import numpy as np
-from datetime import datetime
 from scipy.sparse import coo_matrix
 
 class Item:
@@ -18,7 +13,7 @@ class Item:
         self.invUserFreq = 0
         self.ratings = []
     def __repr__(self):
-        return 'id:%d' % self.id
+        return f'Item:{self.id}, avgRating:{self.avgRating}, invUserFreq:{self.invUserFreq}\n'
 
 class User:
     def __init__(self, id, ratedItems=[], avgRating=0):
@@ -26,7 +21,7 @@ class User:
         self.ratedItems = ratedItems
         self.avgRating = avgRating
     def __repr__(self):
-        return 'id:%d' % self.id
+        return f'User:{self.id}, avgRating:{self.avgRating}\n'
     
 # doc1 and doc2 are doc.frequencies arrays
 def cosSim(doc1, doc2):
@@ -55,7 +50,7 @@ def okapi(doc1, doc2):
         if 0 == doc1[wordIndex] and 0 == doc2[wordIndex]:
             continue
         df = self.docFreq[wordIndex]
-        idf = math.log((len(self.docs) - df + 0.5)/(df + 0.5))
+        idf = np.log((len(self.docs) - df + 0.5)/(df + 0.5))
         numerDoc1 = (normParam + 1) * doc1[wordIndex]
         denomDoc1 = normParam * (1 - docLenParam + docLenParam * (doc1.length/self.self.avgDL)) + doc1[wordIndex]
         numerDoc2 = (normParam + 1) * doc2[wordIndex]
@@ -105,16 +100,13 @@ def toSparseMatrix(jokeCsv):
                 items[item].ratings.append(usrRatings[item])
     items = invUsrFreqAvgRating(users, items)
 
-    print(" Starting to transform to a sparse matrix" + str(datetime.now()))
     matrix = coo_matrix((X_data, (X_row, X_col)), dtype=int)
-    print("Finished transform to a sparse matrix " + str(datetime.now()))
     return matrix.tocsr(), users, items
 
 def main():
     jokeCsv = './jester-data-1.csv'
     completeRatingsMatrix, users, items = toSparseMatrix(jokeCsv)
     print(completeRatingsMatrix)
-    outfile = sys.argv[1]
 
 if __name__ == '__main__':
     main()
