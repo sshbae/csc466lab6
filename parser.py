@@ -11,17 +11,19 @@ import numpy as np
 from datetime import datetime
 from scipy.sparse import coo_matrix
 
-def Item():
+class Item:
     def __init__(self, id):
         self.id = id
         self.avgRating = 0
         self.invUserFreq = 0
 
-def User():
-    def __init__(self, id):
+class User:
+    def __init__(self, id, ratedItems=[], avgRating=0):
         self.id = id
-        self.avgRating = 0
-        self.ratedIems = []
+        self.ratedItems = ratedItems
+        self.avgRating = avgRating
+    def __repr__(self):
+        return 'id:%d' % self.id
     
 # doc1 and doc2 are doc.frequencies arrays
 def cosSim(doc1, doc2):
@@ -69,17 +71,19 @@ def toSparseMatrix(jokeCsv):
     X_data = []
     X_row, X_col = [], []
     targets_array = []
-    users = {}
+    users = []
+    items = [None] * 100
 
-#TODO need to ignore the first number of each row, bc that's just the number of ratings
     with open(jokeCsv, "r") as f:
         for row_idx, string in enumerate(f.readlines()):
             vec = string.strip("\n").split(",")
+            num = int(vec[0])
+            vec = vec[1:] #ignore the first number, this is the number of ratings from current user
             #print(vec)
             targets_array.append(float(vec[-1]))
             #print("targs array")
             #print(targets_array)
-            row = np.array(list(map(float, vec[:-1])))
+            row = np.array(list(map(float, vec)))#vec[:-1])))
             #print("row")
             #print(row)
             col_inds, = np.where(row!=99)
@@ -93,32 +97,19 @@ def toSparseMatrix(jokeCsv):
             #print(X_row)
             X_data.extend(row[col_inds])
 
-            users[row_idx] = User(row_idx)
-            users[row_idx].ratedItems = col_inds
-            users[row_idx].avgRating = row[col_inds].mean()
+            user = User(id=row_idx, ratedItems=col_inds, avgRating=row[col_inds].mean())
+            users.append(user)
 
     print(" Starting to transform to a sparse matrix" + str(datetime.now()))
     matrix = coo_matrix((X_data, (X_row, X_col)), dtype=int)
     print("Finished transform to a sparse matrix " + str(datetime.now()))
-    return matrix.tocsr(), users
+    return matrix.tocsr(), users, items
 
 def main():
     jokeCsv = './jester-data-1.csv'
-    completeRatingsMatrix, users = toSparseMatrix(jokeCsv)
+    completeRatingsMatrix, users, items = toSparseMatrix(jokeCsv)
     print(completeRatingsMatrix)
     outfile = sys.argv[1]
-   # documents = []
-
-   # stopWords = parseStopWords("stopwords-long.txt")
-   # builder = getUniqueWords(root, stopWords)
-
-   # docFrequency = [0] * len(builder.words)
-   # avgDocLen = buildVectors(root, builder, documents, docFrequency)
-   # convertToTfIdf(builder, documents, docFrequency)
-
-   # vec = Vector(builder.words, documents, docFrequency, avgDocLen)
-   # createGroundTruthFile(root)
-   # printVectors(outfile, vec)
 
 if __name__ == '__main__':
     main()
