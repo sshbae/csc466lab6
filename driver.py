@@ -29,6 +29,8 @@ def main():
 
     if index:
         actual = user.ratings[index]
+        changedUser = User(user.id, np.delete(user.ratedItems, index), np.delete(user.ratings, index))
+        changedUser.avgRating = np.sum(changedUser.ratings)/len(changedUser.ratings)
     switch(method):
         case 'meanUtil':
             util = item.avgRating
