@@ -20,26 +20,27 @@ def main():
     item = items[itemId]
     print(type(user.ratedItems))
     print(f"item is {item}")
-    index, = np.where(user.ratedItems == itemId)
     print(f"index is {index}")
     print(f"user rated items is {user.ratedItems}")
     print(f"user ratings is {user.ratings}")
 
     method = sys.argv[3]
 
+    index, = np.where(user.ratedItems == itemId)
     if index:
         actual = user.ratings[index]
-        changedUser = User(user.id, np.delete(user.ratedItems, index), np.delete(user.ratings, index))
-        changedUser.avgRating = np.sum(changedUser.ratings)/len(changedUser.ratings)
+        #changedUser = User(user.id, np.delete(user.ratedItems, index), np.delete(user.ratings, index))
+        #changedUser.avgRating = np.sum(changedUser.ratings)/len(changedUser.ratings)
+        itemRatings = np.delete(item.ratings, index)
     switch(method):
         case 'meanUtil':
-            util = item.avgRating
+            predictedRating = np.sum(itemRatings)/len(itemRatings) if index else item.avgRating
         case 'weightedSum':
-            util = 
+            predictedRating = 
         case 'adjWeightedSum':
-            util = 
+            predcitedRating = 
         case 'avgKnn':
-            util = 
+            predictedRating = 
 
 
 
