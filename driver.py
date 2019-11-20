@@ -1,19 +1,14 @@
 #CSC466 F19 Lab 6
 #Sarah Bae, shbae@calpoly.edu
 #Roxanne Miller, rmille60@calpoly.edu
-#meanUtilityFiltering.py: python3 meanUtilityFiltering.py
+#driver.py: python3 driver.py <user id (0-99)> <item id (0-99)> <method: meanUtil, >
 
 import sys
 import parser
 import numpy as np
+import meanUtilityFiltering
 
-def mean_util(score, user, item, users, items):
-    if score == 99:
-        predict()
-    else:
-        real = score
-        index, = np.where(user.ratedItems == itemId)
-        users[user.id].ratings[index] = 99
+def mean_util
 
 def main():
     jokeCsv = './jester-data-1.csv'
@@ -31,7 +26,12 @@ def main():
     print(f"user ratings is {user.ratings}")
     score = user.ratings[index]
 
-    if (score == 99):
+    method = sys.argv[3]
+
+    switch(method):
+        case 'meanUtil':
+            meanUtilityFiltering.meanUtil(score, user, item, users, items)
+
 
 
 if __name__ == '__main__':
