@@ -34,13 +34,17 @@ def compareUsers(targetUser, secondUser, itemId):
     return targetUserRatings, secondUserRatings
 
 def weightedSum(userId, itemId, users, items):
+    summation = 0
     targetUser = users[userId]
     targetItem = items[itemId]
+    
     for i in range(len(users)):
         if i == userId:
             continue
         else:
             targetUserRatings, secondUserRatings = compareUsers(targetUser, users[i], itemId)
+            similarity = cosSim(targetUserRatings, secondUserRatings)
+            secondUserUtility = 
 
 def main():
     jokeCsv = './jester-data-1.csv'
