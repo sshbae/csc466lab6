@@ -4,7 +4,7 @@
 #parser.py: python3 parser.py
 
 import numpy as np
-from scipy.sparse import coo_matrix
+from scipy.sparse import coo_matrix, csr_matrix
 
 class Item:
     def __init__(self, id):
@@ -16,9 +16,10 @@ class Item:
         return f'Item:{self.id}, avgRating:{self.avgRating}, invUserFreq:{self.invUserFreq}\n'
 
 class User:
-    def __init__(self, id, ratedItems=[], avgRating=0):
+    def __init__(self, id, ratedItems=[], ratings = [], avgRating=0):
         self.id = id
         self.ratedItems = ratedItems
+        self.ratings = ratings
         self.avgRating = avgRating
     def __repr__(self):
         return f'User:{self.id}, avgRating:{self.avgRating}\n'
@@ -83,30 +84,24 @@ def toSparseMatrix(jokeCsv):
             row = string.strip("\n").split(",")
             row = row[1:] #ignore the first number, this is the number of ratings from current user
             usrRatings = np.array(list(map(float, row)))
-            #print(f,"row: {row}")
             col_inds, = np.where(usrRatings!=99)
-            #print(f"col inds: {col_inds}")
+
             X_col.extend(col_inds)
-            #print(f"x col: {X_col}")
             X_row.extend([row_idx]*len(col_inds))
-            #print(f"x row: {X_row}")
             X_data.extend(usrRatings[col_inds])
 
-            user = User(id=row_idx, ratedItems=col_inds, avgRating=usrRatings[col_inds].mean())
+            user = User(id=row_idx, ratedItems=col_inds, ratings = usrRatings[col_inds], avgRating=usrRatings[col_inds].mean())
             users.append(user)
 
             for item in col_inds:
                 items[item].ratings.append(usrRatings[item])
     items = invUsrFreqAvgRating(users, items)
-
     matrix = coo_matrix((X_data, (X_row, X_col)), dtype=float)
-    return matrix.tocsr(), users, items
+    return matrix, users, items
 
 def main():
     jokeCsv = './jester-data-1.csv'
-    completeRatingsMatrix, users, items = toSparseMatrix(jokeCsv)
-    print(completeRatingsMatrix)
-    print(items[0].ratings)
+    matrix, users, items = toSparseMatrix(jokeCsv)
 
 if __name__ == '__main__':
     main()
