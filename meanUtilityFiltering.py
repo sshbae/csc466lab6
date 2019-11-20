@@ -8,31 +8,8 @@ import parser
 import numpy as np
 
 def mean_util(score, user, item, users, items):
-    if score == 99:
-        predict()
-    else:
-        real = score
+    if score != 99:
+        actual = score
         index, = np.where(user.ratedItems == itemId)
         users[user.id].ratings[index] = 99
-
-def main():
-    jokeCsv = './jester-data-1.csv'
-    completeRatingsMatrix, users, items = parser.toSparseMatrix(jokeCsv)
-    print(completeRatingsMatrix)
-    userId = int(sys.argv[1])
-    itemId = int(sys.argv[2])
-    user = users[userId]
-    item = items[itemId]
-    print(type(user.ratedItems))
-    print(f"item is {item}")
-    index, = np.where(user.ratedItems == itemId)
-    print(f"index is {index}")
-    print(f"user rated items is {user.ratedItems}")
-    print(f"user ratings is {user.ratings}")
-    score = user.ratings[index]
-
-    if (score == 99):
-
-
-if __name__ == '__main__':
-    main()
+    predict()
