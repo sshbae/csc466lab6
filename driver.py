@@ -6,9 +6,7 @@
 import sys
 import parser
 import numpy as np
-import meanUtilityFiltering
-
-def mean_util
+import knnFiltering
 
 def main():
     jokeCsv = './jester-data-1.csv'
@@ -40,7 +38,7 @@ def main():
         case 'adjWeightedSum':
             predcitedRating = 
         case 'avgKnn':
-            predictedRating = 
+            predictedRating = knnFiltering.avgKnn(users, items)
 
 
 
