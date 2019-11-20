@@ -24,6 +24,16 @@ def cosSim(user1, user2):
 
     return numer / (denom1 * denom2)
 
+def compareUsers(targetUser, secondUser, itemId):
+    targetUserItems = targetUser.ratedItems[targetUser.ratedItems != itemId]
+    matchingItems = np.intersect1d(targetUserItems, secondUser.ratedItems)
+    targetUserRatings = np.take(targetUser.ratings, matchingItems)
+    secondUserRatings = np.take(secondUser.ratings, matchingItems)
 
-def avgKnn(users, items):
-    cosSim
+    return targetUserRatings, secondUserRatings
+
+def avgKnn(k, users, items):
+    ratings1, ratings2 = compareUsers(user1, user2)
+    sims = cosSim(ratings1, ratings2)
+    sims = -np.sort(-sims)
+    return sims[:k].sum()/np.minimum(k, len(sims))

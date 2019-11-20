@@ -16,11 +16,10 @@ def main():
     itemId = int(sys.argv[2])
     user = users[userId]
     item = items[itemId]
-    print(type(user.ratedItems))
-    print(f"item is {item}")
-    print(f"index is {index}")
-    print(f"user rated items is {user.ratedItems}")
-    print(f"user ratings is {user.ratings}")
+    # print(f"item is {item}")
+    # print(f"index is {index}")
+    # print(f"user rated items is {user.ratedItems}")
+    # print(f"user ratings is {user.ratings}")
 
     index, = np.where(user.ratedItems == itemId)
     if index:
