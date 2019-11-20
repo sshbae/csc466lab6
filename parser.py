@@ -65,7 +65,7 @@ def convertToTfIdf(builder, documents, docFrequency):
 
 def invUsrFreqAvgRating(users, items):
     for item in items:
-        item.ratings = np.array(item.ratings).astype(np.float)
+        item.ratings = np.array(item.ratings)
         item.invUserFreq = np.log2(item.ratings.size/len(users))
         item.avgRating = np.mean(item.ratings)
     return items
@@ -80,33 +80,33 @@ def toSparseMatrix(jokeCsv):
 
     with open(jokeCsv, "r") as f:
         for row_idx, string in enumerate(f.readlines()):
-            usrRatings = string.strip("\n").split(",")
-            num = int(usrRatings[0])
-            usrRatings = usrRatings[1:] #ignore the first number, this is the number of ratings from current user
-            row = np.array(list(map(float, usrRatings)))
+            row = string.strip("\n").split(",")
+            row = row[1:] #ignore the first number, this is the number of ratings from current user
+            usrRatings = np.array(list(map(float, row)))
             #print(f,"row: {row}")
-            col_inds, = np.where(row!=99)
+            col_inds, = np.where(usrRatings!=99)
             #print(f"col inds: {col_inds}")
             X_col.extend(col_inds)
             #print(f"x col: {X_col}")
             X_row.extend([row_idx]*len(col_inds))
             #print(f"x row: {X_row}")
-            X_data.extend(row[col_inds])
+            X_data.extend(usrRatings[col_inds])
 
-            user = User(id=row_idx, ratedItems=col_inds, avgRating=row[col_inds].mean())
+            user = User(id=row_idx, ratedItems=col_inds, avgRating=usrRatings[col_inds].mean())
             users.append(user)
 
             for item in col_inds:
                 items[item].ratings.append(usrRatings[item])
     items = invUsrFreqAvgRating(users, items)
 
-    matrix = coo_matrix((X_data, (X_row, X_col)), dtype=int)
+    matrix = coo_matrix((X_data, (X_row, X_col)), dtype=float)
     return matrix.tocsr(), users, items
 
 def main():
     jokeCsv = './jester-data-1.csv'
     completeRatingsMatrix, users, items = toSparseMatrix(jokeCsv)
     print(completeRatingsMatrix)
+    print(items[0].ratings)
 
 if __name__ == '__main__':
     main()

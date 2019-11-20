@@ -10,6 +10,8 @@ def main():
     jokeCsv = './jester-data-1.csv'
     completeRatingsMatrix, users, items = parser.toSparseMatrix(jokeCsv)
     print(completeRatingsMatrix)
+    sys.argv[2]
+
     outfile = sys.argv[1]
 
 if __name__ == '__main__':
