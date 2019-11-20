@@ -24,40 +24,6 @@ class User:
     def __repr__(self):
         return f'User:{self.id}, avgRating:{self.avgRating}\n'
     
-# doc1 and doc2 are doc.frequencies arrays
-def cosSim(doc1, doc2):
-    numer = 0
-    denom1 = 0
-    denom2 = 0
-
-    numerArray = np.multiply(doc1, doc2)
-    numer = np.sum(numerArray)
-
-    denom1Array = np.power(doc1, 2)
-    denom1 = np.sum(denom1Array)
-    denom1 = np.sqrt(denom1)
-
-    denom2Array = np.power(doc2, 2)
-    denom2 = np.sum(denom2Array)
-    denom2 = np.sqrt(denom2)
-
-    return numer / (denom1 * denom2)
-
-def okapi(doc1, doc2):
-    tot = 0
-    normParam = 1.5
-    docLenParam = 0.75
-    for wordIndex in range(len(doc1)):
-        if 0 == doc1[wordIndex] and 0 == doc2[wordIndex]:
-            continue
-        df = self.docFreq[wordIndex]
-        idf = np.log((len(self.docs) - df + 0.5)/(df + 0.5))
-        numerDoc1 = (normParam + 1) * doc1[wordIndex]
-        denomDoc1 = normParam * (1 - docLenParam + docLenParam * (doc1.length/self.self.avgDL)) + doc1[wordIndex]
-        numerDoc2 = (normParam + 1) * doc2[wordIndex]
-        denomDoc2 = normParam * (1 - docLenParam + docLenParam * (doc2.length/self.self.avgDL)) + doc2[wordIndex]
-        tot += (idf * (numerDoc1/denomDoc1) * (numerDoc2/denomDoc2))
-    return tot
 
 def convertToTfIdf(builder, documents, docFrequency):
     for doc in documents:

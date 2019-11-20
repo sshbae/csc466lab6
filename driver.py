@@ -24,13 +24,20 @@ def main():
     print(f"index is {index}")
     print(f"user rated items is {user.ratedItems}")
     print(f"user ratings is {user.ratings}")
-    score = user.ratings[index]
 
     method = sys.argv[3]
 
+    if index:
+        actual = user.ratings[index]
     switch(method):
         case 'meanUtil':
-            meanUtilityFiltering.meanUtil(score, user, item, users, items)
+            util = item.avgRating
+        case 'weightedSum':
+            util = 
+        case 'adjWeightedSum':
+            util = 
+        case 'avgKnn':
+            util = 
 
 
 
