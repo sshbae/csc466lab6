@@ -28,23 +28,36 @@ def cosSim(user1, user2):
 def compareUsers(targetUser, secondUser, itemId):
     targetUserItems = targetUser.ratedItems[targetUser.ratedItems != itemId]
     matchingItems = np.intersect1d(targetUserItems, secondUser.ratedItems)
-    targetUserRatings = np.take(targetUser.ratings, matchingItems)
-    secondUserRatings = np.take(secondUser.ratings, matchingItems)
+   
+    targetUserIndices = np.searchsorted(targetUserItems, matchingItems)
+    secondUserIndices = np.searchsorted(secondUser.ratedItems, matchingItems)    
+    
+    targetUserRatings = np.take(targetUser.ratings, targetUserIndices)
+    secondUserRatings = np.take(secondUser.ratings, secondUserIndices)
 
     return targetUserRatings, secondUserRatings
 
 def weightedSum(userId, itemId, users, items):
     summation = 0
+    normalFactor = 0
     targetUser = users[userId]
     targetItem = items[itemId]
     
     for i in range(len(users)):
-        if i == userId:
+        if i == userId or itemId not in users[i].ratedItems:
             continue
         else:
-            targetUserRatings, secondUserRatings = compareUsers(targetUser, users[i], itemId)
+            secondUser = users[i]
+            targetUserRatings, secondUserRatings = compareUsers(targetUser, secondUser, itemId)
             similarity = cosSim(targetUserRatings, secondUserRatings)
-            secondUserUtility = 
+            
+            secondUserUtilityIndex, = np.where(secondUser.ratedItems == itemId)
+            secondUserUtility = secondUser.ratings[secondUserUtilityIndex]
+            
+            summation += similarity * secondUserUtility
+            normalFactor += abs(similarity)
+
+    return (1 / normalFactor) * summation
 
 def main():
     jokeCsv = './jester-data-1.csv'
@@ -55,7 +68,8 @@ def main():
 
     outfile = sys.argv[3]
 
-
+    prediction = weightedSum(userId, itemId, users, items)
+    print(prediction)
 
 if __name__ == '__main__':
     main()
