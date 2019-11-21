@@ -21,9 +21,9 @@ import adjustWeightSum
 def usageErr():
         print(f"Usage: python3 EvaluateCFRandom.py <Method: 1. meanUtil 2. weightedSum 3.adjWeightedSum 4. knnMeanUtil>\n\t\t\t\t\t<Size>\n\t\t\t\t\t<Repeats>")
 
-def MAE(predictions, actuals):
-    residuals = np.absolute(np.subtract(predictions, actuals))
-    return np.sum(residuals)/predictions.size
+def MAE(deltas):
+    residuals = np.absolute(deltas)
+    return np.sum(residuals)/deltas.size
 
 def check(candidateUIPairs, users):
     j = 0
@@ -38,10 +38,8 @@ def check(candidateUIPairs, users):
         j += 1
     return uiPairs
 
-#do we ever need to check if it exists? the program makes sure it only ever recieves existing ratings
 def evaluate(method, users, items, user, item):
     index, = np.where(user.ratedItems == item.id)
-    #if index:
     actual = user.ratings[index]
     itemRatings = np.delete(item.ratings, index)
 
@@ -69,6 +67,10 @@ def main():
     size = int(sys.argv[2])
     repeats = int(sys.argv[3])
 
+    f = open('outRandom.csv', 'w+')
+    f.write("userID, itemID, Actual_Rating, Predicted_Rating, Delta_Rating\n")
+
+    MAEs = []
     for i in range(repeats):
         uiPairs = []
         while (len(uiPairs) < size):
@@ -87,10 +89,17 @@ def main():
             predictions.append(prediction)
         predictions = np.array(predictions)
         actuals = np.array(actuals)
+        deltas = np.subtract(actuals, predictions)
+        MAEs.append(MAE(deltas))
 
         for i in range(size):
-            print(f"user: {uiPairs[i][0]} item: {uiPairs[i][1]}\tactual: {actuals[i]} predicted: {predictions[i]}")
-        print(f"MAE is {MAE(predictions, actuals)}")
+            f.write(f"{uiPairs[i][0]},{uiPairs[i][1]},{actuals[i][0]},{predictions[i][0]}\n")
+    MAEs = np.array(MAEs)
+    for mae in MAEs:
+        f.write(f"{mae},")
+    f.write(f"\n{np.sum(MAEs)/MAEs.size}")
+    f.write(f"\n{np.sqrt(np.sum(np.power(deltas, 2))/(deltas.size - 1))}")
+    f.close()
 
 if __name__ == '__main__':
     main()
