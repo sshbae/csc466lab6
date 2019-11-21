@@ -61,6 +61,7 @@ def adjustedWeightedSum(users, items, user, item):
             similarity = cosSim(targetUserRatings, secondUserRatings)
             
             secondUserUtilityIndex, = np.where(secondUser.ratedItems == item.id)
+#for the user avg rating, does this make sure to omit the item's rating?
             secondUserUtility = secondUser.ratings[secondUserUtilityIndex] - userAvgRating(secondUser)
             
             summation += similarity * secondUserUtility
