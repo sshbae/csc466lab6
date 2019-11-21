@@ -69,27 +69,28 @@ def main():
     size = int(sys.argv[2])
     repeats = int(sys.argv[3])
 
-    uiPairs = []
-    while (len(uiPairs) < size):
-        candidateUIPairs = np.random.randint(0,100, (size, 2))
-        uiPairs.extend(check(candidateUIPairs, users))
-    uiPairs = np.array(uiPairs[:size])
+    for i in range(repeats):
+        uiPairs = []
+        while (len(uiPairs) < size):
+            candidateUIPairs = np.random.randint(0,100, (size, 2))
+            uiPairs.extend(check(candidateUIPairs, users))
+        uiPairs = np.array(uiPairs[:size])
 
-    method = int(sys.argv[1])
-    predictions = []
-    actuals = []
-    for uiPair in uiPairs:
-        userId = uiPair[0]
-        itemId = uiPair[1]
-        actual, prediction = evaluate(method, users, items, users[userId], items[itemId])
-        actuals.append(actual)
-        predictions.append(prediction)
-    predictions = np.array(predictions)
-    actuals = np.array(actuals)
+        method = int(sys.argv[1])
+        predictions = []
+        actuals = []
+        for uiPair in uiPairs:
+            userId = uiPair[0]
+            itemId = uiPair[1]
+            actual, prediction = evaluate(method, users, items, users[userId], items[itemId])
+            actuals.append(actual)
+            predictions.append(prediction)
+        predictions = np.array(predictions)
+        actuals = np.array(actuals)
 
-    for i in range(size):
-        print(f"user: {uiPairs[i][0]} item: {uiPairs[i][1]}\tactual: {actuals[i]} predicted: {predictions[i]}")
-    print(f"MAE is {MAE(predictions, actuals)}")
+        for i in range(size):
+            print(f"user: {uiPairs[i][0]} item: {uiPairs[i][1]}\tactual: {actuals[i]} predicted: {predictions[i]}")
+        print(f"MAE is {MAE(predictions, actuals)}")
 
 if __name__ == '__main__':
     main()
