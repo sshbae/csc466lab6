@@ -26,13 +26,16 @@ def MAE(predictions, actuals):
     return np.sum(residuals)/predictions.size
 
 def check(candidateUIPairs, users):
-    uiPairs = []
+    j = 0
+    uiPairs = candidateUIPairs.copy()
     for i, uiPair in enumerate(candidateUIPairs):
         userId = uiPair[0]
         itemId = uiPair[1]
         index, = np.where(users[userId].ratedItems == itemId)
-        if not index:
-            uiPairs = np.delete(candidateUIPairs, i, axis=0)
+        if index.size == 0:
+            uiPairs = np.delete(uiPairs, j, axis=0)
+            j -= 1
+        j += 1
     return uiPairs
 
 #do we ever need to check if it exists? the program makes sure it only ever recieves existing ratings
@@ -82,7 +85,6 @@ def main():
         actuals.append(actual)
         predictions.append(prediction)
 
-    print(f"predictions is of size {len(predictions)}, acutals is of size {len(actuals)}, uipairs is of size {uiPairs.size}")
     for i in range(size):
         print(f"user: {uiPairs[i][0]} item: {uiPairs[i][1]}\tactual: {actuals[i]} predicted: {predictions[i]}")
 
