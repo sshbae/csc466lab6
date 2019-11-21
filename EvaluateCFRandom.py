@@ -25,6 +25,16 @@ def MAE(predictions, actuals):
     residuals = np.absolute(np.subtract(predictions, actuals))
     return np.sum(residuals)/predictions.size
 
+def check(candidateUIPairs, users):
+    for i, uiPair in enumerate(candidateUIPairs):
+        userId = uiPair[0]
+        itemId = uiPair[1]
+        index, = np.where(users[userId]].ratedItems == itemId)
+        if not index:
+            candidateUIPairs = np.delete(candidateUIPairs, i)
+
+    return candidateUIPairs
+
 def main():
     if len(sys.argv) < 4:
         usageErr()
@@ -38,8 +48,9 @@ def main():
     uiPairs = []
     np.random.randint(0,100)
     while (len(uiPairs) < size):
-        candidates = np.random.randint(0,100, (size, 2))
-        uiPairs.concatenate(check(candidates))
+        candidateUIPairs = np.random.randint(0,100, (size, 2))
+        uiPairs.extend(check(candidateUIPairs, users))
+    uiPairs = np.array(uiPairs)
 
    # userId = int(sys.argv[1])
    # itemId = int(sys.argv[2])
@@ -49,6 +60,8 @@ def main():
     index, = np.where(user.ratedItems == itemId)
     if index:
         actual = user.ratings[index]
+        #changedUser = User(user.id, np.delete(user.ratedItems, index), np.delete(user.ratings, index))
+        #changedUser.avgRating = np.sum(changedUser.ratings)/len(changedUser.ratings)
         itemRatings = np.delete(item.ratings, index)
 
     method = int(sys.argv[1])
