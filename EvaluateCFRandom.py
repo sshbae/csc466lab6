@@ -84,9 +84,12 @@ def main():
         actual, prediction = evaluate(method, users, items, users[userId], items[itemId])
         actuals.append(actual)
         predictions.append(prediction)
+    predictions = np.array(predictions)
+    actuals = np.array(actuals)
 
     for i in range(size):
         print(f"user: {uiPairs[i][0]} item: {uiPairs[i][1]}\tactual: {actuals[i]} predicted: {predictions[i]}")
+    print(f"MAE is {MAE(predictions, actuals)}")
 
 if __name__ == '__main__':
     main()
