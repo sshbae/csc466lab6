@@ -26,21 +26,21 @@ def MAE(predictions, actuals):
     return np.sum(residuals)/predictions.size
 
 def check(candidateUIPairs, users):
+    uiPairs = []
     for i, uiPair in enumerate(candidateUIPairs):
         userId = uiPair[0]
         itemId = uiPair[1]
-        index, = np.where(users[userId]].ratedItems == itemId)
+        index, = np.where(users[userId].ratedItems == itemId)
         if not index:
-            candidateUIPairs = np.delete(candidateUIPairs, i)
-
-    return candidateUIPairs
+            uiPairs = np.delete(candidateUIPairs, i, axis=0)
+    return uiPairs
 
 #do we ever need to check if it exists? the program makes sure it only ever recieves existing ratings
 def evaluate(method, users, items, user, item):
-    index, = np.where(user.ratedItems == itemId)
-    if index:
-        actual = user.ratings[index]
-        itemRatings = np.delete(item.ratings, index)
+    index, = np.where(user.ratedItems == item.id)
+    #if index:
+    actual = user.ratings[index]
+    itemRatings = np.delete(item.ratings, index)
 
     if method == 1:
         predictedRating = np.sum(itemRatings)/len(itemRatings) if index else item.avgRating
@@ -54,6 +54,7 @@ def evaluate(method, users, items, user, item):
     else:
         usageErr()
         exit()
+    return actual, predictedRating
 
 def main():
     if len(sys.argv) < 4:
@@ -69,15 +70,21 @@ def main():
     while (len(uiPairs) < size):
         candidateUIPairs = np.random.randint(0,100, (size, 2))
         uiPairs.extend(check(candidateUIPairs, users))
-    uiPairs = np.array(uiPairs)
+    uiPairs = np.array(uiPairs[:size])
 
     method = int(sys.argv[1])
     predictions = []
+    actuals = []
     for uiPair in uiPairs:
         userId = uiPair[0]
         itemId = uiPair[1]
-        predictions.append(evaluate(method, users, items, users[userId], items[itemId]))
+        actual, prediction = evaluate(method, users, items, users[userId], items[itemId])
+        actuals.append(actual)
+        predictions.append(prediction)
 
+    print(f"predictions is of size {len(predictions)}, acutals is of size {len(actuals)}, uipairs is of size {uiPairs.size}")
+    for i in range(size):
+        print(f"user: {uiPairs[i][0]} item: {uiPairs[i][1]}\tactual: {actuals[i]} predicted: {predictions[i]}")
 
 if __name__ == '__main__':
     main()
