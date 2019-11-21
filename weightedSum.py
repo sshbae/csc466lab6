@@ -26,7 +26,14 @@ def cosSim(user1, user2):
     return numer / (denom1 * denom2)
 
 def compareUsers(targetUser, secondUser, itemId):
-    targetUserItems = targetUser.ratedItems[targetUser.ratedItems != itemId]
+    targetRatings = targetUser.ratings
+    targetUserItems = targetUser.ratedItems
+    
+    index, = np.where(targetUser.ratedItems == itemId)
+    if index:
+        targetUserItems = targetUser.ratedItems[targetUser.ratedItems != itemId]
+        targetRatings = np.delete(targetUser.ratings, index)
+    
     matchingItems = np.intersect1d(targetUserItems, secondUser.ratedItems)
    
     targetUserIndices = np.searchsorted(targetUserItems, matchingItems)

@@ -29,13 +29,20 @@ def userAvgRating(user):
     return np.mean(user.ratings)
 
 def compareUsers(targetUser, secondUser, itemId):
-    targetUserItems = targetUser.ratedItems[targetUser.ratedItems != itemId]
+    targetRatings = targetUser.ratings
+    targetUserItems = targetUser.ratedItems
+
+    index, = np.where(targetUser.ratedItems == itemId)
+    if index:
+        targetUserItems = targetUser.ratedItems[targetUser.ratedItems != itemId]
+        targetRatings = np.delete(targetUser.ratings, index)
+
     matchingItems = np.intersect1d(targetUserItems, secondUser.ratedItems)
    
     targetUserIndices = np.searchsorted(targetUserItems, matchingItems)
     secondUserIndices = np.searchsorted(secondUser.ratedItems, matchingItems)    
     
-    targetUserRatings = np.take(targetUser.ratings, targetUserIndices)
+    targetUserRatings = np.take(targetRatings, targetUserIndices)
     secondUserRatings = np.take(secondUser.ratings, secondUserIndices)
 
     return targetUserRatings, secondUserRatings
