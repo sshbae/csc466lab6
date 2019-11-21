@@ -37,21 +37,19 @@ def compareUsers(targetUser, secondUser, itemId):
 
     return targetUserRatings, secondUserRatings
 
-def weightedSum(userId, itemId, users, items):
+def weightedSum(users, items, user, item):
     summation = 0
     normalFactor = 0
-    targetUser = users[userId]
-    targetItem = items[itemId]
     
     for i in range(len(users)):
-        if i == userId or itemId not in users[i].ratedItems:
+        if i == user.id or item.id not in users[i].ratedItems:
             continue
         else:
             secondUser = users[i]
-            targetUserRatings, secondUserRatings = compareUsers(targetUser, secondUser, itemId)
+            targetUserRatings, secondUserRatings = compareUsers(user, secondUser, item.id)
             similarity = cosSim(targetUserRatings, secondUserRatings)
             
-            secondUserUtilityIndex, = np.where(secondUser.ratedItems == itemId)
+            secondUserUtilityIndex, = np.where(secondUser.ratedItems == item.id)
             secondUserUtility = secondUser.ratings[secondUserUtilityIndex]
             
             summation += similarity * secondUserUtility
@@ -59,17 +57,3 @@ def weightedSum(userId, itemId, users, items):
 
     return (1 / normalFactor) * summation
 
-def main():
-    jokeCsv = './jester-data-1.csv'
-    completeRatingsMatrix, users, items = parser.toSparseMatrix(jokeCsv)
-    # print(completeRatingsMatrix)
-    userId = int(sys.argv[1])
-    itemId = int(sys.argv[2])
-
-    outfile = sys.argv[3]
-
-    prediction = weightedSum(userId, itemId, users, items)
-    print(prediction)
-
-if __name__ == '__main__':
-    main()

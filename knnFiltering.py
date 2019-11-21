@@ -5,6 +5,7 @@
 
 import sys
 import parser
+import numpy as np
 
 def cosSim(user1, user2):
     numer = 0
@@ -27,13 +28,19 @@ def cosSim(user1, user2):
 def compareUsers(targetUser, secondUser, itemId):
     targetUserItems = targetUser.ratedItems[targetUser.ratedItems != itemId]
     matchingItems = np.intersect1d(targetUserItems, secondUser.ratedItems)
-    targetUserRatings = np.take(targetUser.ratings, matchingItems)
-    secondUserRatings = np.take(secondUser.ratings, matchingItems)
+
+    targetUserIndices = np.searchsorted(targetUserItems, matchingItems)
+    secondUserIndices = np.searchsorted(secondUser.ratedItems, matchingItems)
+
+    targetUserRatings = np.take(targetUser.ratings, targetUserIndices)
+    secondUserRatings = np.take(secondUser.ratings, secondUserIndices)
 
     return targetUserRatings, secondUserRatings
 
-def avgKnn(k, users, items):
-    ratings1, ratings2 = compareUsers(user1, user2)
-    sims = cosSim(ratings1, ratings2)
-    sims = -np.sort(-sims)
+def avgKnn(k, users, items, user, item):
+    sims = []
+    for user2 in users:
+        ratings1, ratings2 = compareUsers(user, user2, item.id)
+        sims.append(cosSim(ratings1, ratings2))
+    sims = -np.sort(-np.array(sims))
     return sims[:k].sum()/np.minimum(k, len(sims))

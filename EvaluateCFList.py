@@ -1,19 +1,25 @@
 #CSC466 F19 Lab 6
 #Sarah Bae, shbae@calpoly.edu
 #Roxanne Miller, rmille60@calpoly.edu
-#driver.py: python3 driver.py <user id (0-99)> <item id (0-99)> <method: meanUtil, >
+'''
+EvaluateCFRandom.py: python3 EvaluateCFRandom.py <int method: 1. meanUtil
+                                                        2. weightedSum
+                                                        3. adjWeightedSum
+                                                        4. knnMeanUtil
+                                                        >
+                                           <int size>
+                                           <int repeats>
+'''
 
 import sys
 import parser
 import numpy as np
 import knnFiltering
-import weightedSum
-import adjustWeightSum
 
 def main():
     jokeCsv = './jester-data-1.csv'
     completeRatingsMatrix, users, items = parser.toSparseMatrix(jokeCsv)
-    #print(completeRatingsMatrix)
+    print(completeRatingsMatrix)
     userId = int(sys.argv[1])
     itemId = int(sys.argv[2])
     user = users[userId]
@@ -30,16 +36,15 @@ def main():
     if method == 'meanUtil':
         predictedRating = np.sum(itemRatings)/len(itemRatings) if index else item.avgRating
     elif method == 'weightedSum':
-        predictedRating = weightedSum.weightedSum(users, items, user, item)
-    elif method == 'adjWeightSum':
-        predictedRating = adjustWeightSum.adjustedWeightedSum(users, items, user, item)
+        predictedRating = None
+    elif method == 'adjWeightedSum':
+        predictedRating = None
     elif method =='avgKnn':
         k = int(sys.argv[4])
         predictedRating = knnFiltering.avgKnn(k, users, items, user, item)
     else:
         exit()
 
-    print(f"predicted rating: {predictedRating}")
 
 
 if __name__ == '__main__':

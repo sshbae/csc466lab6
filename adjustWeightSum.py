@@ -1,7 +1,7 @@
 #CSC466 F19 Lab 6
 #Sarah Bae, shbae@calpoly.edu
 #Roxanne Miller, rmille60@calpoly.edu
-#weightedSum.py: python3 weightedSum.py <userid> <itemid> <output csv filename>
+#adjustWeightSum.py: python3 adjustWeightSum.py <userid> <itemid> <output csv filename>
 
 import sys
 import parser
@@ -40,22 +40,20 @@ def compareUsers(targetUser, secondUser, itemId):
 
     return targetUserRatings, secondUserRatings
 
-def weightedSum(userId, itemId, users, items):
+def adjustedWeightedSum(users, items, user, item):
     summation = 0
     normalFactor = 0
-    targetUser = users[userId]
-    targetItem = items[itemId]
     
     for i in range(len(users)):
-        if i == userId or itemId not in users[i].ratedItems:
+        if i == user.id or item.id not in users[i].ratedItems:
             continue
         else:
             secondUser = users[i]
-            targetUserAvg = userAvgRating(targetUser)
-            targetUserRatings, secondUserRatings = compareUsers(targetUser, secondUser, itemId)
+            targetUserAvg = userAvgRating(user)
+            targetUserRatings, secondUserRatings = compareUsers(user, secondUser, item.id)
             similarity = cosSim(targetUserRatings, secondUserRatings)
             
-            secondUserUtilityIndex, = np.where(secondUser.ratedItems == itemId)
+            secondUserUtilityIndex, = np.where(secondUser.ratedItems == item.id)
             secondUserUtility = secondUser.ratings[secondUserUtilityIndex] - userAvgRating(secondUser)
             
             summation += similarity * secondUserUtility
@@ -63,18 +61,3 @@ def weightedSum(userId, itemId, users, items):
 
     return targetUserAvg + ((1 / normalFactor) * summation)
 
-def main():
-    jokeCsv = './jester-data-1.csv'
-    completeRatingsMatrix, users, items = parser.toSparseMatrix(jokeCsv)
-    # print(completeRatingsMatrix)
-    userId = int(sys.argv[1])
-    itemId = int(sys.argv[2])
-
-    outfile = sys.argv[3]
-
-    prediction = weightedSum(userId, itemId, users, items)
-    print(prediction)
-
-
-if __name__ == '__main__':
-    main()
