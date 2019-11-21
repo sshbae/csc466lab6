@@ -24,12 +24,6 @@ class User:
     def __repr__(self):
         return f'User:{self.id}, avgRating:{self.avgRating}\n'
     
-
-def convertToTfIdf(builder, documents, docFrequency):
-    for doc in documents:
-        for i in range(len(doc.frequencies)):
-            doc.frequencies[i] = tf_idf(i, doc, docFrequency, len(documents))
-
 def invUsrFreqAvgRating(users, items):
     for item in items:
         item.ratings = np.array(item.ratings)
