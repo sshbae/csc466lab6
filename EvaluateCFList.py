@@ -17,6 +17,7 @@ import knnFiltering
 import weightedSum
 import adjustWeightSum
 import pandas as pd
+import evaluator
 
 def usageErr():
         print(f"Usage: python3 EvaluateCFRandom.py <Method: 1. meanUtil 2. weightedSum 3.adjWeightedSum 4. knnMeanUtil>\n\t\t\t\t\t<filename of uiPairs")
@@ -36,7 +37,7 @@ def getPrediction(method, users, items, user, item):
     elif method == 3:
         predictedRating = adjustWeightSum.adjustedWeightedSum(users, items, user, item)
     elif method == 4:
-        k = int(sys.argv[4])
+        k = int(sys.argv[3])
         predictedRating = knnFiltering.avgKnn(k, users, items, user, item)
     else:
         usageErr()
@@ -92,6 +93,7 @@ def main():
     actuals = np.array(actuals).flatten()
     deltas = np.array(deltas).flatten()
 
+    evaluator.evaluatePredictions(predictions, actuals)
     for i in range(len(userIds)):
         f.write(f"{userIds[i]},{itemIds[i]},{actuals[i]},{predictions[i]},{deltas[i]}\n")
     f.write(f"{MAE(np.array(deltas))}")
