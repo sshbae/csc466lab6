@@ -105,5 +105,7 @@ def main():
     f.write(f"\n{np.sqrt(np.sum(np.power(deltas, 2))/(deltas.size - 1))}")
     f.close()
 
+    
+
 if __name__ == '__main__':
     main()
