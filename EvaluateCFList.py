@@ -26,11 +26,10 @@ def MAE(deltas):
     return np.sum(residuals)/deltas.size
 
 def getPrediction(method, users, items, user, item):
+    index, = np.where(user.ratedItems == item.id)
+    actual = user.ratings[index]
     if method == 1:
-        index, = np.where(user.ratedItems == item.id)
-        if index:
-            actual = user.ratings[index]
-            itemRatings = np.delete(item.ratings, index)
+        itemRatings = np.delete(item.ratings, index)
         predictedRating = np.sum(itemRatings)/len(itemRatings) if index else item.avgRating
     elif method == 2:
         predictedRating = weightedSum.weightedSum(users, items, user, item)
@@ -42,7 +41,7 @@ def getPrediction(method, users, items, user, item):
     else:
         usageErr()
         exit()
-    return actual, predictedRating
+    return actual[0], predictedRating
     
 
 def isValid(users, pair):
@@ -84,11 +83,8 @@ def main():
             userIds.append(user.id)
             itemIds.append(pair[1])
 
-            predictedRating = getPrediction(method, users, items, user, items[pair[1]])
+            actualRating, predictedRating = getPrediction(method, users, items, user, items[pair[1]])
             predictions.append(predictedRating)
-            
-            actualIndex, = np.where(user.ratedItems == pair[1])
-            actualRating = user.ratings[actualIndex]
             actuals.append(actualRating)
 
             deltas.append(abs(predictedRating - actualRating))
@@ -96,11 +92,10 @@ def main():
     actuals = np.array(actuals).flatten()
     deltas = np.array(deltas).flatten()
 
-    print(itemIds[0])
     for i in range(len(userIds)):
         f.write(f"{userIds[i]},{itemIds[i]},{actuals[i]},{predictions[i]},{deltas[i]}\n")
     f.write(f"{MAE(np.array(deltas))}")
-    # f.close()
+    f.close()
 
 if __name__ == '__main__':
     main()
