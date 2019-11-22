@@ -102,7 +102,7 @@ def main():
     for mae in MAEs:
         f.write(f"{mae},")
     f.write(f"\n{np.sum(MAEs)/MAEs.size}")
-    f.write(f"\n{np.sqrt(np.sum(np.power(deltas, 2))/(deltas.size - 1))}")
+    f.write(f"\n{np.sqrt(np.sum(np.power(MAEs, 2))/(MAEs.size - 1)) if MAEs.size > 1 else 0}")
     f.close()
 
     
