@@ -25,8 +25,8 @@ def cosSim(doc1, doc2):
 
     return numer / (denom1 * denom2)
 
-def userAvgRating(user):
-    return np.mean(user.ratings)
+def userAvgRating(ratings):
+    return np.mean(ratings)
 
 def compareUsers(targetUser, secondUser, itemId):
     targetRatings = targetUser.ratings
@@ -56,13 +56,21 @@ def adjustedWeightedSum(users, items, user, item):
             continue
         else:
             secondUser = users[i]
-            targetUserAvg = userAvgRating(user)
+            index, = np.where(user.ratedItems == item.id)
+            if index:
+                targetUserAvg = userAvgRating(np.delete(user.ratings, index))
+            else: 
+                targetUserAvg = userAvgRating(user.ratings)
             targetUserRatings, secondUserRatings = compareUsers(user, secondUser, item.id)
             similarity = cosSim(targetUserRatings, secondUserRatings)
             
-            # remove current item from avg rating calculation
             secondUserUtilityIndex, = np.where(secondUser.ratedItems == item.id)
-            secondUserUtility = secondUser.ratings[secondUserUtilityIndex] - userAvgRating(secondUser)
+            index, = np.where(secondUser.ratedItems == item.id)
+            if index:
+                secondUserAvg = userAvgRating(np.delete(secondUser.ratings, index))
+            else: 
+                secondUserAvg = userAvgRating(secondUser.ratings)
+            secondUserUtility = secondUser.ratings[secondUserUtilityIndex] - secondUserAvg
             
             summation += similarity * secondUserUtility
             normalFactor += abs(similarity)
