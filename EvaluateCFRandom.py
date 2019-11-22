@@ -67,7 +67,7 @@ def main():
     repeats = int(sys.argv[3])
 
     f = open('outRandom.csv', 'w+')
-    f.write("userID, itemID, Actual_Rating, Predicted_Rating, Delta_Rating\n")
+    f.write("userID,itemID,Actual_Rating,Predicted_Rating,Delta_Rating\n")
 
     MAEs = []
     for i in range(repeats):
@@ -89,8 +89,12 @@ def main():
             actuals.append(actual)
             predictions.append(prediction)
             deltas.append(prediction - actual)
-        deltas = np.array(deltas)
+        deltas = np.array(deltas).flatten()
         MAEs.append(MAE(deltas))
+
+        if method != 1:
+            predictions = np.array(predictions).flatten()
+            deltas = np.array(deltas).flatten()
 
         for i in range(size):
             f.write(f"{uiPairs[i][0]},{uiPairs[i][1]},{actuals[i]},{predictions[i]},{deltas[i]}\n")
