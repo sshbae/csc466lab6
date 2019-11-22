@@ -95,6 +95,7 @@ def main():
     for i in range(len(userIds)):
         f.write(f"{userIds[i]},{itemIds[i]},{actuals[i]},{predictions[i]},{deltas[i]}\n")
     f.write(f"{MAE(np.array(deltas))}")
+    f.write(f"\n{np.sqrt(np.sum(np.power(deltas, 2))/(deltas.size - 1))}")
     f.close()
 
 if __name__ == '__main__':
