@@ -4,8 +4,10 @@
 '''
 EvaluateCFList.py: python3 EvaluateCFList.py <int method: 1. meanUtil
                                                         2. weightedSum
-                                                        3. adjWeightedSum
-                                                        4. knnMeanUtil
+                                                        3. adjWeightedSumCosSim
+                                                        4. adjWeightedSumPearsonCorr
+                                                        5. knnMeanUtilCosSim
+                                                        6. knnMeanUtilPearsonCorr
                                                         >
                                            <filename of uiPairs>
 '''
@@ -20,7 +22,43 @@ import pandas as pd
 import evaluator
 
 def usageErr():
-        print(f"Usage: python3 EvaluateCFRandom.py <Method: 1. meanUtil 2. weightedSum 3.adjWeightedSum 4. knnMeanUtil>\n\t\t\t\t\t<filename of uiPairs")
+        print(f"Usage: python3 EvaluateCFRandom.py <Method: 1. meanUtil 2. weightedSum 3.adjWeightedSum(cosSim) 4. adjWeightedSum(PearsonCorr) 5. knnMeanUtil(cosSim) 6. knnMeanUtil(pearson)>"
+        "\n\t\t\t\t\t<filename of uiPairs>")
+
+def transform(userRatings, items, itemIds):
+    for i in range(userRatings.size):
+        userRatings[i] *= items[itemIds[i]].invUserFreq
+    return userRatings
+
+def pearsonCorr(itemIds, items, user1, user2):
+    user1 = transform(user1, items, itemIds)
+    user2 = transform(user2, items, itemIds)
+    numer1Array = np.subtract(user1, np.full(user1.size, user1.mean()))
+    numer2Array = np.subtract(user2, np.full(user2.size, user2.mean()))
+    denom1 = np.sum(np.power(numer1Array, 2))
+    denom2 = np.sum(np.power(numer2Array, 2))
+    
+    return (np.sum(numer1Array) * np.sum(numer2Array)) / (denom1 * denom2)
+
+def cosSim(itemIds, items, user1, user2):
+    user1 = transform(user1, items, itemIds)
+    user2 = transform(user2, items, itemIds)
+    numer = 0 
+    denom1 = 0 
+    denom2 = 0 
+
+    numerArray = np.multiply(user1, user2)
+    numer = np.sum(numerArray)
+
+    denom1Array = np.power(user1, 2)
+    denom1 = np.sum(denom1Array)
+    denom1 = np.sqrt(denom1)
+
+    denom2Array = np.power(user2, 2)
+    denom2 = np.sum(denom2Array)
+    denom2 = np.sqrt(denom2)
+
+    return numer / (denom1 * denom2)
 
 def MAE(deltas):
     residuals = np.absolute(deltas)
@@ -35,10 +73,15 @@ def getPrediction(method, users, items, user, item):
     elif method == 2:
         predictedRating = weightedSum.weightedSum(users, items, user, item)
     elif method == 3:
-        predictedRating = adjustWeightSum.adjustedWeightedSum(users, items, user, item)
+        predictedRating = adjustWeightSum.adjustedWeightedSum(users, items, user, item, cosSim)
     elif method == 4:
+        predictedRating = adjustWeightSum.adjustedWeightedSum(users, items, user, item, pearsonCorr)
+    elif method == 5:
         k = int(sys.argv[3])
-        predictedRating = knnFiltering.avgKnn(k, users, items, user, item)
+        predictedRating = knnFiltering.avgKnn(k, users, items, user, item, cosSim)
+    elif method == 6:
+        k = int(sys.argv[3])
+        predictedRating = knnFiltering.avgKnn(k, users, items, user, item, pearsonCorr)
     else:
         usageErr()
         exit()

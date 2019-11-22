@@ -7,24 +7,6 @@ import sys
 import parser
 import numpy as np
 
-def cosSim(user1, user2):
-    numer = 0
-    denom1 = 0
-    denom2 = 0
-
-    numerArray = np.multiply(user1, user2)
-    numer = np.sum(numerArray)
-
-    denom1Array = np.power(user1, 2)
-    denom1 = np.sum(denom1Array)
-    denom1 = np.sqrt(denom1)
-
-    denom2Array = np.power(user2, 2)
-    denom2 = np.sum(denom2Array)
-    denom2 = np.sqrt(denom2)
-
-    return numer / (denom1 * denom2)
-
 def compareUsers(targetUser, secondUser, itemId):
     targetRatings = targetUser.ratings
     targetUserItems = targetUser.ratedItems
@@ -42,12 +24,14 @@ def compareUsers(targetUser, secondUser, itemId):
     targetUserRatings = np.take(targetRatings, targetUserIndices)
     secondUserRatings = np.take(secondUser.ratings, secondUserIndices)
 
-    return targetUserRatings, secondUserRatings
+    return matchingItems, targetUserRatings, secondUserRatings
 
-def avgKnn(k, users, items, user, item):
+def avgKnn(k, users, items, user, item, simMeasure):
     sims = []
     for user2 in users:
-        ratings1, ratings2 = compareUsers(user, user2, item.id)
-        sims.append(cosSim(ratings1, ratings2))
+        matchingItems, ratings1, ratings2 = compareUsers(user, user2, item.id)
+        sim = simMeasure(matchingItems, items, ratings1, ratings2)
+        sims.append(sim)
     sims = -np.sort(-np.array(sims))
+    print(sims)
     return sims[:k].sum()/np.minimum(k, len(sims))

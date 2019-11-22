@@ -7,24 +7,6 @@ import sys
 import parser
 import numpy as np
 
-def cosSim(doc1, doc2):
-    numer = 0
-    denom1 = 0
-    denom2 = 0
-
-    numerArray = np.multiply(doc1, doc2)
-    numer = np.sum(numerArray)
-
-    denom1Array = np.power(doc1, 2)
-    denom1 = np.sum(denom1Array)
-    denom1 = np.sqrt(denom1)
-
-    denom2Array = np.power(doc2, 2)
-    denom2 = np.sum(denom2Array)
-    denom2 = np.sqrt(denom2)
-
-    return numer / (denom1 * denom2)
-
 def userAvgRating(ratings):
     return np.mean(ratings)
 
@@ -45,9 +27,9 @@ def compareUsers(targetUser, secondUser, itemId):
     targetUserRatings = np.take(targetRatings, targetUserIndices)
     secondUserRatings = np.take(secondUser.ratings, secondUserIndices)
 
-    return targetUserRatings, secondUserRatings
+    return matchingItems, targetUserRatings, secondUserRatings
 
-def adjustedWeightedSum(users, items, user, item):
+def adjustedWeightedSum(users, items, user, item, simMeasure):
     summation = 0
     normalFactor = 0
     
@@ -61,8 +43,8 @@ def adjustedWeightedSum(users, items, user, item):
                 targetUserAvg = userAvgRating(np.delete(user.ratings, index))
             else: 
                 targetUserAvg = userAvgRating(user.ratings)
-            targetUserRatings, secondUserRatings = compareUsers(user, secondUser, item.id)
-            similarity = cosSim(targetUserRatings, secondUserRatings)
+            matchingItems, targetUserRatings, secondUserRatings = compareUsers(user, secondUser, item.id)
+            similarity = simMeasure(matchingItems, items, targetUserRatings, secondUserRatings)
             
             secondUserUtilityIndex, = np.where(secondUser.ratedItems == item.id)
             index, = np.where(secondUser.ratedItems == item.id)
