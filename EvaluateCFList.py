@@ -16,17 +16,18 @@ import numpy as np
 import knnFiltering
 import weightedSum
 import adjustWeightSum
+import pandas as pd
 
 def usageErr():
         print(f"Usage: python3 EvaluateCFRandom.py <Method: 1. meanUtil 2. weightedSum 3.adjWeightedSum 4. knnMeanUtil>\n\t\t\t\t\t<filename of uiPairs")
 
 def MAE(deltas):
-    residuals = np.absolute(deltas))
+    residuals = np.absolute(deltas)
     return np.sum(residuals)/deltas.size
 
 def getPrediction(method, users, items, user, item):
     if method == 1:
-        index, = np.where(user.ratedItems == itemId)
+        index, = np.where(user.ratedItems == item.id)
         if index:
             actual = user.ratings[index]
             itemRatings = np.delete(item.ratings, index)
@@ -49,6 +50,13 @@ def isValid(users, pair):
         return True
     return False
 
+def getPairs(uiPairsFile):
+    pairs = []
+    df = pd.read_csv(uiPairsFile, header=None)
+    for index, row in df.iterrows():
+        pairs.append((row[0], row[1]))
+
+    return pairs
 
 def main():
     if len(sys.argv) < 3:
@@ -59,10 +67,10 @@ def main():
 
     method = int(sys.argv[1])
     uiPairsFile = open(sys.argv[2], "r")
-    #userItemPairs = [(1, 2), (3, 4), (0, 0)]
+    userItemPairs = np.array(getPairs(uiPairsFile))
 
     f = open('outList.csv', 'w+')
-    f.write("userID, itemID, Actual_Rating, Predicted_Rating, Delta_Rating\n")
+    f.write("userID,itemID,Actual_Rating,Predicted_Rating,Delta_Rating\n")
 
     userIds = []
     itemIds = []
@@ -73,7 +81,7 @@ def main():
     for pair in userItemPairs:
         if isValid(users, pair):
             user = users[pair[0]]
-            userIds.append(user)
+            userIds.append(user.id)
             itemIds.append(pair[1])
 
             predictedRating = getPrediction(method, users, items, user, items[pair[1]])
@@ -84,11 +92,15 @@ def main():
             actuals.append(actualRating)
 
             deltas.append(abs(predictedRating - actualRating))
+    predictions = np.array(predictions).flatten()
+    actuals = np.array(actuals).flatten()
+    deltas = np.array(deltas).flatten()
 
-    for i in range(userItemPairs.size):
-        f.write(f"{userItemPairs[i][0]},{userItemPairs[i][1]},{actuals[i]},{predictions[i]},{deltas[i]}\n")
-    f.write(f"{MAE(np.array(deltas)}")
-    f.close()
+    print(itemIds[0])
+    for i in range(len(userIds)):
+        f.write(f"{userIds[i]},{itemIds[i]},{actuals[i]},{predictions[i]},{deltas[i]}\n")
+    f.write(f"{MAE(np.array(deltas))}")
+    # f.close()
 
 if __name__ == '__main__':
     main()
